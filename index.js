@@ -28,10 +28,6 @@ var intToIp = function(intIp) {
     return octets.join('.');
 }
 
-var inRange = function (needle, heystack) {
-    return (needle >= heystack.start && needle <= heystack.end);
-}
-
 var DB = function (csvfile) {
     this.ready = false;
     this.queue = [];
@@ -67,32 +63,31 @@ var DB = function (csvfile) {
     });
 }
 
-DB.prototype.bsearch = function(needle, start, end, probes) {
-    if (probes < 0) { console.log('ran out of probes'); return }
+var sys = require('sys');
+DB.prototype.bsearch = function (needle, heystack) {
+    var start = 0,
+        end = heystack.length - 1,
+        middle, target;
 
-    start = start || 0;
-    end = end || this.items.length;
-    var range = end - start;
+    while (start < end) {
+        middle = Math.floor((end - start) / 2) + start;
+        target = heystack[middle];
 
-    var offset = Math.floor(range / 2) + start;
-    var target = this.items[offset];
-
-    if (inRange(needle, target)) {
-        return target;
-    } else {
-        if (needle < target.start) {
-            return this.bsearch(needle, start, offset, --probes);
-        } else {
-            return this.bsearch(needle, offset, end, --probes);
+        if (needle >= target.start && needle <= target.end) {
+            return target;
         }
+
+        if (needle < target.start)
+            end = middle - 1;
+        else
+            start = middle + 1;
     }
 };
 
 DB.prototype._lookup = function (ip, callback) {
     var intIp = ipToInt(ip);
 
-    var worstCase = Math.log(this.items.length) / Math.log(2);
-    var result = this.bsearch(intIp, 0, this.items.length, worstCase);
+    var result = this.bsearch(intIp, this.items);
     if (result) {
         result.start_ip = intToIp(result.start);
         result.end_ip   = intToIp(result.end);
