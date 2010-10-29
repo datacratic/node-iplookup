@@ -8,6 +8,7 @@ Setup
  - npm install node-iplookup
  - Download ip database: 
     $ curl "http://software77.net/geo-ip/?DL=1"|gunzip > countries.csv
+ - run $ node test.js
 
 Example
 -------
