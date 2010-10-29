@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+var EventEmitter = require('events').EventEmitter;
 var csv = require('ya-csv');
 
 var firstOctet  = 256 * 256 * 256;
@@ -13,6 +14,8 @@ var DB = function (csvfile) {
     this.ready = false;
     this.queue = [];
     this.items = [];
+    this.emitter = new(EventEmitter)();
+    this.emitter.emit('lol');
 
     var that = this;
     var reader = csv.createCsvFileReader(csvfile, {
@@ -32,17 +35,31 @@ var DB = function (csvfile) {
         that.items.push(current);
     });
 
+    var error = false;
     reader.on('error', function (err) {
-        console.log('csv parsing error, did you specify the database correctly?');
+        error = new(Error)('csv parsing error, did you specify the database correctly?');
     });
 
     reader.on('end', function () {
         that.ready = true;
+        if (!error) {
+            that.emit('ready', null, that);
+        } else {
+            that.emit('ready', error);
+        }
         that.queue.forEach(function (req) {
             that.lookup(req.ip, req.callback);
         });
     });
 }
+
+DB.prototype.on = function (event, callback) {
+    this.emitter.on(event, callback);
+};
+
+DB.prototype.emit = function () {
+    this.emitter.emit.apply(this.emitter, arguments);
+};
 
 DB.prototype.ipToInt = function(ip) {
     var octets = ip.split('.').map(function (octet) { return parseInt(octet) });
@@ -93,9 +110,10 @@ DB.prototype._lookup = function (ip, callback) {
     if (result) {
         result.start_ip = this.intToIp(result.start);
         result.end_ip   = this.intToIp(result.end);
-        callback(null, result);
+        callback && callback(null, result);
+        return result;
     } else {
-        callback(new(Error)('ip not found'));
+        callback && callback(new(Error)('ip not found'))
     }
 };
 
@@ -103,8 +121,14 @@ DB.prototype.lookup = function (ip, callback) {
     if (!this.ready) {
         this.queue.push({ip: ip, callback: callback});
     } else {
-        this._lookup(ip, callback);
+        return this._lookup(ip, callback);
     }
 }
 
+var loadDB = function (dbfile, callback) {
+    var db = new(DB)(dbfile);
+    db.on('ready', callback);
+};
+
 exports.DB = DB;
+exports.loadDB = loadDB;
