@@ -2,10 +2,10 @@
 
 var csv = require('ya-csv');
 
-var firstOctet  = (8 * 3);
-var secondOctet = (8 * 2);
-var thirdOctet  = (8 * 1);
-var fourthOctet = (8 * 0);
+var firstOctet  = 256 * 256 * 256;
+var secondOctet = 256 * 256;
+var thirdOctet  = 256;
+var fourthOctet = 1;
 
 var DB = function (csvfile) {
     this.ready = false;
@@ -45,19 +45,19 @@ var DB = function (csvfile) {
 DB.prototype.ipToInt = function(ip) {
     var octets = ip.split('.').map(function (octet) { return parseInt(octet) });
 
-    octets[0] = octets[0] << firstOctet;
-    octets[1] = octets[1] << secondOctet;
-    octets[2] = octets[2] << thirdOctet;
-    octets[3] = octets[3] << fourthOctet;
+    octets[0] = octets[0] * firstOctet;
+    octets[1] = octets[1] * secondOctet
+    octets[2] = octets[2] * thirdOctet
+    octets[3] = octets[3] * fourthOctet;
 
     return octets.reduce(function(sum, octet) { return octet + sum });
 }
 
 DB.prototype.intToIp = function(intIp) {
-    var octets = [(intIp >> firstOctet)  & 255,
-                  (intIp >> secondOctet) & 255,
-                  (intIp >> thirdOctet)  & 255,
-                  (intIp >> fourthOctet) & 255];
+    var octets = [(intIp / firstOctet)  & 255,
+                  (intIp / secondOctet) & 255,
+                  (intIp / thirdOctet)  & 255,
+                  (intIp / fourthOctet) & 255];
 
 
     return octets.join('.');
