@@ -1,0 +1,14 @@
+{
+   "name": "node-iplookup",
+   "version": "0.1",
+   "main": "index",
+   "description": "Ip to country lookup",
+   "author": "Braithwaite Patrick Sean <sean@recoset.com>",
+   "license": {
+       "type": "Apachev2",
+       "url": "http://www.apache.org/licenses/LICENSE-2.0"
+   },
+   "dependencies" : {
+        "ya-csv" : ">=0.1.5"
+   }
+}

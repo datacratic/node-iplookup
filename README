@@ -1,3 +1,36 @@
 Ip Lookup
 =========
+
 Node library to load an ip database into memory and determine the country code
+
+Setup
+-----
+ - npm install node-iplookup
+ - Download ip database: 
+    $ curl "http://software77.net/geo-ip/?DL=1"|gunzip > countries.csv
+
+Example
+-------
+
+var DB = require('iplookup');
+
+var db = DB.new('countries.csv');
+
+db.lookup('1.2.3.4', function (err, result) {
+    if (err) throw err;
+    console.log(result);
+});
+
+// Should give you: 
+{ start: 16909056,
+  code: 'AU',
+  country: 'Australia',
+  start_ip: '1.2.3.0',
+  end_ip: '1.2.3.255'
+}
+
+Notes
+-----
+ - The whole database is loaded into memory (100k lines)
+ - Binary search is used for the lookup
+ - node-geoip (http://github.com/strange/node-geoip) is rad but has C++ dependencies
