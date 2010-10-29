@@ -8,6 +8,8 @@ var thirdOctet  = 256;
 var fourthOctet = 1;
 
 var DB = function (csvfile) {
+    if(!csvfile) throw new(Error)('Please provide a ip database file');
+
     this.ready = false;
     this.queue = [];
     this.items = [];
@@ -31,7 +33,7 @@ var DB = function (csvfile) {
     });
 
     reader.on('error', function (err) {
-        console.log('csv parsing error: ' + err);
+        console.log('csv parsing error, did you specify the database correctly?');
     });
 
     reader.on('end', function () {

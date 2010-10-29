@@ -6,9 +6,9 @@ Node library to load an ip database into memory and determine the country code
 Setup
 -----
  - npm install node-iplookup
- - Download ip database: 
+ - Download ip database:
     $ curl "http://software77.net/geo-ip/?DL=1"|gunzip > countries.csv
- - run $ node test.js
+ - run $ node test.js, should rock your world
 
 Example
 -------
@@ -22,7 +22,7 @@ db.lookup('1.2.3.4', function (err, result) {
     console.log(result);
 });
 
-// Should give you: 
+// Should give you:
 { start: 16909056,
   code: 'AU',
   country: 'Australia',
