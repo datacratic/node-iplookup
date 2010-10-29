@@ -7,27 +7,6 @@ var secondOctet = (8 * 2);
 var thirdOctet  = (8 * 1);
 var fourthOctet = (8 * 0);
 
-var ipToInt = function(ip) {
-    var octets = ip.split('.').map(function (octet) { return parseInt(octet) });
-
-    octets[0] = octets[0] << firstOctet;
-    octets[1] = octets[1] << secondOctet;
-    octets[2] = octets[2] << thirdOctet;
-    octets[3] = octets[3] << fourthOctet;
-
-    return octets.reduce(function(sum, octet) { return octet + sum });
-}
-
-var intToIp = function(intIp) {
-    var octets = [(intIp >> firstOctet)  & 255,
-                  (intIp >> secondOctet) & 255,
-                  (intIp >> thirdOctet)  & 255,
-                  (intIp >> fourthOctet) & 255];
-
-
-    return octets.join('.');
-}
-
 var DB = function (csvfile) {
     this.ready = false;
     this.queue = [];
@@ -63,6 +42,27 @@ var DB = function (csvfile) {
     });
 }
 
+DB.prototype.ipToInt = function(ip) {
+    var octets = ip.split('.').map(function (octet) { return parseInt(octet) });
+
+    octets[0] = octets[0] << firstOctet;
+    octets[1] = octets[1] << secondOctet;
+    octets[2] = octets[2] << thirdOctet;
+    octets[3] = octets[3] << fourthOctet;
+
+    return octets.reduce(function(sum, octet) { return octet + sum });
+}
+
+DB.prototype.intToIp = function(intIp) {
+    var octets = [(intIp >> firstOctet)  & 255,
+                  (intIp >> secondOctet) & 255,
+                  (intIp >> thirdOctet)  & 255,
+                  (intIp >> fourthOctet) & 255];
+
+
+    return octets.join('.');
+}
+
 var sys = require('sys');
 DB.prototype.bsearch = function (needle, heystack) {
     var start = 0,
@@ -85,12 +85,12 @@ DB.prototype.bsearch = function (needle, heystack) {
 };
 
 DB.prototype._lookup = function (ip, callback) {
-    var intIp = ipToInt(ip);
+    var intIp = this.ipToInt(ip);
 
     var result = this.bsearch(intIp, this.items);
     if (result) {
-        result.start_ip = intToIp(result.start);
-        result.end_ip   = intToIp(result.end);
+        result.start_ip = this.intToIp(result.start);
+        result.end_ip   = this.intToIp(result.end);
         callback(null, result);
     } else {
         callback(new(Error)('ip not found'));
