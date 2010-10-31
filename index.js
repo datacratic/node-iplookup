@@ -15,7 +15,6 @@ var DB = function (csvfile) {
     this.queue = [];
     this.items = [];
     this.emitter = new(EventEmitter)();
-    this.emitter.emit('lol');
 
     var that = this;
     var reader = csv.createCsvFileReader(csvfile, {
