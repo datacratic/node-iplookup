@@ -1,6 +1,6 @@
 {
    "name": "node-iplookup",
-   "version": "0.1",
+   "version": "0.1.0",
    "main": "index",
    "description": "Ip to country lookup",
    "author": "Braithwaite Patrick Sean <sean@recoset.com>",
