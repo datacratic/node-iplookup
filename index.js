@@ -34,18 +34,14 @@ var DB = function (csvfile) {
         that.items.push(current);
     });
 
-    var error = false;
     reader.on('error', function (err) {
-        error = new(Error)('csv parsing error, did you specify the database correctly?');
+        that.emit('ready', new(Error)('csv parsing error, did you specify the database correctly?'));
     });
 
     reader.on('end', function () {
         that.ready = true;
-        if (!error) {
-            that.emit('ready', null, that);
-        } else {
-            that.emit('ready', error);
-        }
+        that.emit('ready', null, that);
+
         that.queue.forEach(function (req) {
             that.lookup(req.ip, req.callback);
         });
