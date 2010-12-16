@@ -1,4 +1,4 @@
-var DB = require('./index').DB;
+var DB = require('./../index').DB;
 
 var db = new(DB)('countries.csv');
 

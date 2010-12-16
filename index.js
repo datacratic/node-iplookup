@@ -28,8 +28,13 @@ var DB = function (csvfile) {
     this.queue = [];
     this.items = [];
     this.emitter = new(EventEmitter)();
+    this.load(csvfile);
+};
 
+DB.prototype.load = function (csvfile) {
     var that = this;
+    that.ready = false;
+
     var reader = csv.createCsvFileReader(csvfile, {
         'separator': ',',
         'quote': '"',
@@ -63,9 +68,9 @@ var DB = function (csvfile) {
         var req;
         while (req = that.queue.pop()) {
             that.lookup(req.ip, req.callback);
-        });
+        }
     });
-}
+};
 
 DB.prototype.on = function (event, callback) {
     this.emitter.on(event, callback);
