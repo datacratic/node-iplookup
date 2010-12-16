@@ -55,7 +55,8 @@ var DB = function (csvfile) {
         that.ready = true;
         that.emit('ready', null, that);
 
-        that.queue.forEach(function (req) {
+        var req;
+        while (req = that.queue.pop()) {
             that.lookup(req.ip, req.callback);
         });
     });
