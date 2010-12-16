@@ -48,7 +48,12 @@ var DB = function (csvfile) {
     });
 
     reader.on('error', function (err) {
-        that.emit('ready', new(Error)('csv parsing error, did you specify the database correctly?'));
+        var error = new(Error)('csv parsing error, did you specify the database correctly?');
+        var req;
+        while (req = that.queue.pop()) {
+            req.callback(error);
+        }
+        that.emit('ready', error);
     });
 
     reader.on('end', function () {
