@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // copyright 2010 Recoset Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +21,7 @@ var thirdOctet  = 256;
 var fourthOctet = 1;
 
 var DB = function (csvfile) {
-    if(!csvfile) throw new(Error)('Please provide a ip database file');
+    if (!csvfile) throw new(Error)('Please provide a ip database file');
 
     this.ready = false;
     this.queue = [];
@@ -31,9 +30,17 @@ var DB = function (csvfile) {
     this.load(csvfile);
 };
 
+/* Load a csv file into memory for lookup
+ * - lookups performed this action is completed will be queued.
+ * - On load complete, the queue will be trained with lookups performed
+ * - If an error occurs during the csv parsing, the queue will be drained
+ *   and callbacks called with an error.
+ * - If the database is already loaded, the new file will be parsed in 
+ *   it's entirety and replace the old database on completion. Lookups
+ *   performed during the load will be performed on the old database. */
 DB.prototype.load = function (csvfile) {
     var that = this;
-    that.ready = false;
+    var items = [];
 
     var reader = csv.createCsvFileReader(csvfile, {
         'separator': ',',
@@ -49,7 +56,7 @@ DB.prototype.load = function (csvfile) {
         current.code    = line[4];
         current.country = line[6];
 
-        that.items.push(current);
+        items.push(current);
     });
 
     reader.on('error', function (err) {
@@ -58,11 +65,14 @@ DB.prototype.load = function (csvfile) {
         while (req = that.queue.pop()) {
             req.callback(error);
         }
+
         that.emit('ready', error);
     });
 
     reader.on('end', function () {
         that.ready = true;
+        that.items = items;
+
         that.emit('ready', null, that);
 
         var req;
@@ -97,11 +107,9 @@ DB.prototype.intToIp = function(intIp) {
                   (intIp / thirdOctet)  & 255,
                   (intIp / fourthOctet) & 255];
 
-
     return octets.join('.');
 }
 
-var sys = require('sys');
 DB.prototype.bsearch = function (needle, heystack) {
     var start = 0,
         end = heystack.length - 1,

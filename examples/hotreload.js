@@ -9,11 +9,20 @@ var assert = require('assert');
 var DB = require('./../index').DB;
 var db = new(DB)('countries.csv.old');
 
-db.lookup('64.254.247.159', function (err, original) {
+
+var interval = setInterval(function () {
+    console.log('lookup:' + JSON.stringify(db.lookup('112.207.252.57')));
+}, 500);
+
+setTimeout(function () {
     db.load('countries.csv');
-    db.on('ready', function (err) {
-        db.lookup('64.254.247.159', function (err, updated) {
-            assert.notEqual(original, updated);
-        });
-    });
+}, 2000);
+
+var readied = 0;
+db.on('ready', function () {
+    console.log('ready');
+    if (++readied == 2) {
+        console.log('lookup:' + JSON.stringify(db.lookup('112.207.252.57')));
+        clearInterval(interval);
+    }
 });
