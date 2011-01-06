@@ -35,7 +35,7 @@ var DB = function (csvfile) {
  * - On load complete, the queue will be trained with lookups performed
  * - If an error occurs during the csv parsing, the queue will be drained
  *   and callbacks called with an error.
- * - If the database is already loaded, the new file will be parsed in 
+ * - If the database is already loaded, the new file will be parsed in
  *   it's entirety and replace the old database on completion. Lookups
  *   performed during the load will be performed on the old database. */
 DB.prototype.load = function (csvfile) {
@@ -84,6 +84,10 @@ DB.prototype.load = function (csvfile) {
 
 DB.prototype.on = function (event, callback) {
     this.emitter.on(event, callback);
+};
+
+DB.prototype.removeListener = function (event, callback) {
+    this.emitter.removeListener(event, callback);
 };
 
 DB.prototype.emit = function () {
@@ -154,7 +158,11 @@ DB.prototype.lookup = function (ip, callback) {
 
 var loadDB = function (dbfile, callback) {
     var db = new(DB)(dbfile);
-    db.on('ready', callback);
+    var loadOnce = function () {
+        callback.apply(null, arguments);
+        db.removeListener('ready', loadOnce);
+    }
+    db.on('ready', loadOnce);
 };
 
 exports.DB = DB;
